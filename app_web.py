@@ -8,12 +8,12 @@ load_dotenv()
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 st.set_page_config(
-    page_title="Trợ lý Pháp lý AI",
+    page_title="VKSND Khu vực 4 - Nghệ An AI",
     page_icon="⚖️",
     layout="centered"
 )
 
-st.title("⚖️ Trợ lý Pháp lý AI")
+st.title("⚖️ Viện Kiểm sát Nhân dân Khu vực 4 - Nghệ An AI")
 st.caption("Hỗ trợ tra cứu, soạn thảo Cáo trạng và bài phát biểu")
 
 SYSTEM_PROMPT = """Bạn là một trợ lý pháp lý chuyên nghiệp, hỗ trợ Kiểm sát viên tại Việt Nam.
