@@ -14,13 +14,23 @@ import streamlit as st
 
 # Tải biến môi trường
 load_dotenv()
-client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-GEMINI_MODEL = "gemini-2.5-flash"
 
 # Cấu hình giao diện Wide Mode
 st.set_page_config(
     page_title="VKSND Khu vực 4 - Nghệ An AI", page_icon="⚖️", layout="wide"
 )
+
+
+# QUẢN LÝ CLIENT AN TOÀN TRÁNH LỖI CLOSED CLIENT
+@st.cache_resource
+def get_genai_client():
+    return genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+
+
+client = get_genai_client()
+
+# CẬP NHẬT TÊN MODEL CHUẨN TẠI ĐÂY
+GEMINI_MODEL = "gemini-3.6-flash"
 
 st.title("⚖️ Viện Kiểm sát Nhân dân Khu vực 4 - Nghệ An AI")
 st.caption("Hỗ trợ tra cứu, soạn thảo Cáo trạng và bài phát biểu")
@@ -244,7 +254,7 @@ with st.sidebar:
         st.session_state.messages = []
         if "pdf_content" in st.session_state:
             del st.session_state.pdf_content
-        st.session_state.chat = client.chats.create(
+        st.session_state.chat = get_genai_client().chats.create(
             model=GEMINI_MODEL,
             config=types.GenerateContentConfig(
                 system_instruction=SYSTEM_PROMPT
@@ -254,7 +264,7 @@ with st.sidebar:
 
 # KHỞI TẠO STATE
 if "chat" not in st.session_state:
-    st.session_state.chat = client.chats.create(
+    st.session_state.chat = get_genai_client().chats.create(
         model=GEMINI_MODEL,
         config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT),
     )
@@ -349,7 +359,7 @@ if che_do == "📋 Soạn dự thảo Cáo trạng":
 - Căn cứ Quyết định khởi tố bị can: {so_kt_bi_can or '[CẦN BỔ SUNG: Số, ngày QĐ khởi tố bị can]'}
 - Căn cứ bản Kết luận điều tra vụ án hình sự đề nghị truy tố: {so_kldt or '[CẦN BỔ SUNG: Số, ngày Kết luận điều tra]'}
 
-2. Câu chuyển bắt buộc: "Trên cơ sở kết quả điều tra đã xác định được như sau:"
+2. "Trên cơ sở kết quả điều tra đã xác định được như sau:"
 
 3. PHẦN NỘI DUNG:
 - Diễn biến hành vi phạm tội: {dien_bien or '[CẦN BỔ SUNG: Diễn biến hành vi phạm tội]'}
@@ -357,7 +367,7 @@ if che_do == "📋 Soạn dự thảo Cáo trạng":
 - Việc thu giữ, tạm giữ đồ vật, tài liệu, xử lý vật chứng: {vat_chung or 'Không có'}
 - Phần dân sự: {dan_su or 'Không có phần dân sự trong vụ án'}
 
-4. Câu chuyển bắt buộc: "Căn cứ vào các tình tiết và chứng cứ nêu trên,"
+4. "Căn cứ vào các tình tiết và chứng cứ nêu trên,"
 
 5. KẾT LUẬN:
 - Tổng hợp hành vi phạm tội: nêu ngắn gọn hành vi, tính chất, mức độ, hậu quả, vai trò bị can.
@@ -368,7 +378,7 @@ if che_do == "📋 Soạn dự thảo Cáo trạng":
 - Khẳng định: Bị can {ten_bi_can} đã phạm tội {toi_danh}, quy định tại {dieu_luat or '[CẦN BỔ SUNG: Điều khoản BLHS]'}
 - Tình tiết tăng nặng, giảm nhẹ trách nhiệm hình sự: {tang_nhe_giam_nhe or '[CẦN BỔ SUNG: Điểm, khoản áp dụng]'}
 
-6. Câu chuyển bắt buộc: "Bởi các lẽ trên,"
+6. "Bởi các lẽ trên,"
 
 7. PHẦN "QUYẾT ĐỊNH" (viết in hoa):
 1. Truy tố ra trước {toa_an_truy_to or 'Tòa án nhân dân khu vực... [CẦN BỔ SUNG]'} để xét xử bị can {ten_bi_can} về tội {toi_danh} theo quy định tại {dieu_luat}.
